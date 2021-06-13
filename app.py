@@ -53,3 +53,16 @@ def not_found(error=None):
     resp = jsonify(message)
     resp.status_code = 404
     return resp
+
+# APIs to implement
+# -register team
+#     -register team members
+# -login to dashboard with team name and password
+# -create an issue
+#     -reval all issues (assign new ones if possible) 
+# -fetch all issues
+# -change status of issues
+#     -reval all issues (assign new ones if possible)
+# -get team details
+# -get user details
+# -get issue details
