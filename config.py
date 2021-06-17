@@ -1,0 +1,1 @@
+MONGO_CONNECTION_URL = "mongodb+srv://yashwant:yashwant@cluster0.jibtk.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
