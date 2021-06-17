@@ -4,9 +4,9 @@ from registerTeam import RegisterTeam
 
 app = Flask(__name__, static_url_path="")
 
-api = Api(app)
-
+api = Api()
 api.add_resource(RegisterTeam, "/register-team")
+api.init_app(app)
 
 @app.route('/', methods=['GET'])
 def home():
