@@ -1,16 +1,13 @@
 from flask import Flask
 from flask_restful import Api
 from registerTeam import RegisterTeam
+from home import Home
 
 app = Flask(__name__, static_url_path="")
 
-api = Api()
+api = Api(app)
+api.add_resource(Home, "/")
 api.add_resource(RegisterTeam, "/register-team")
-api.init_app(app)
-
-@app.route('/', methods=['GET'])
-def home():
-    return "api working"
 
 
 # import flask
