@@ -1,13 +1,19 @@
 from flask import Flask
 from flask_restful import Api
+from flask_cors import CORS 
+
 from registerTeam import RegisterTeam
 from home import Home
 
-app = Flask(__name__, static_url_path="")
-
+app = Flask(__name__)
 api = Api(app)
-api.add_resource(Home, "/")
-api.add_resource(RegisterTeam, "/register-team")
+CORS(app)
+
+api.add_resource(Home, '/')
+api.add_resource(RegisterTeam, '/register-team')
+
+if __name__ == '__main__':
+    app.run()
 
 
 # import flask
