@@ -70,3 +70,24 @@ class UpdateIssue(CreateIssue):
         self.result["data"] = "Details update sucessfully"
         print(issueDetails)
         return self.result, 200
+
+class IssueList(CreateIssue):
+    def get(self):
+        reqData = json.loads(request.data) if request.data else None
+
+        teamName = reqData["team-name"]
+        issues = self.issue_collection.find({"team-name": teamName})
+
+        self.result["data"]["issues"] = []
+        for issue in issues:
+            self.result["data"]["issues"].append(self.prepreIssueToReturn(issue))
+
+        return self.result, 200
+
+    def prepreIssueToReturn(self, issue):
+        data = dict()
+        required_keys = ["title", "team-name", "author", "description", "assignee", "priority", "tags", "index"]
+        for key in issue.keys():
+            if key in required_keys:
+                data[key] = issue[key]
+        return data

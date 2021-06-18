@@ -6,6 +6,7 @@ from home import Home
 from registerTeam import RegisterTeam
 from issues import CreateIssue
 from issues import UpdateIssue
+from issues import IssueList
 
 app = Flask(__name__)
 api = Api(app)
@@ -15,6 +16,7 @@ api.add_resource(Home, '/')
 api.add_resource(RegisterTeam, '/register-team')
 api.add_resource(CreateIssue, '/create-issue')
 api.add_resource(UpdateIssue, '/update-issue')
+api.add_resource(IssueList, '/issues')
 
 if __name__ == '__main__':
     app.run()
