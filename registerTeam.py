@@ -58,3 +58,22 @@ class RegisterTeam(Resource):
                 "team": teamName
             }
             self.user_collection.save(user)
+
+    def getIssueIndex(self, teamName):
+        teamDetails = self.getTeam(teamName)
+        if "issues" in teamDetails.keys():
+            return teamDetails["issues"]+1
+        else:
+            return 1
+
+    def updateIssueCount(self, teamName):
+        try:
+            teamDetails = self.getTeam(teamName)
+            if "issues" in teamDetails.keys():
+                teamDetails["issues"] += 1
+            else:
+                teamDetails["issues"] = 1
+            self.team_collection.save(teamDetails)
+            return True
+        except:
+            return False

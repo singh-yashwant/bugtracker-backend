@@ -2,8 +2,10 @@ from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS 
 
-from registerTeam import RegisterTeam
 from home import Home
+from registerTeam import RegisterTeam
+from issues import CreateIssue
+from issues import UpdateIssue
 
 app = Flask(__name__)
 api = Api(app)
@@ -11,6 +13,8 @@ CORS(app)
 
 api.add_resource(Home, '/')
 api.add_resource(RegisterTeam, '/register-team')
+api.add_resource(CreateIssue, '/create-issue')
+api.add_resource(UpdateIssue, '/update-issue')
 
 if __name__ == '__main__':
     app.run()
