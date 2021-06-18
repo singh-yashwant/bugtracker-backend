@@ -14,7 +14,6 @@ class UserList(Resource):
         self.team_collection = self.db.teams
         self.issue_collection = self.db.issues
         self.result = {"Status": True, "data": {}}
-        self.registerTeam = RegisterTeam()
 
     def get(self):
         reqData = json.loads(request.data) if request.data else None

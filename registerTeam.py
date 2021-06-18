@@ -28,12 +28,15 @@ class RegisterTeam(Resource):
                
         # if team with same name already present
         teamName = reqData["team-name"]
+        self.password = reqData["password"]
         # print(teamName)
         if self.sameNameTeamExist(teamName):
             self.result["data"] = "Cannot register team with same name already exist"
             return self.result, 400
         
         self.createTeam(reqData)
+        
+        # add users to database
         self.addTeamMembersToDb(reqData["team-members"], teamName)
         self.result["data"] = "Team added successfully"
         return self.result, 200
@@ -58,6 +61,7 @@ class RegisterTeam(Resource):
                 "team": teamName
             }
             self.user_collection.save(user)
+            self.sendEmail(teamName, member)
 
     def getIssueIndex(self, teamName):
         teamDetails = self.getTeam(teamName)
@@ -77,3 +81,15 @@ class RegisterTeam(Resource):
             return True
         except:
             return False
+
+    def sendEmail(self, teamName, userDetails):
+        print("Sending email to", userDetails)
+        userName = userDetails[0]
+        email = userDetails[1]
+        
+        msg = """Hello {0}
+Your team has successfully registered on bugtracker app 
+These are your login credentials
+username: {1}
+passoword: {2}
+""".format(userName, teamName, self.password)
