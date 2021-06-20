@@ -5,15 +5,18 @@ from flask_restful import Resource
 from flask import request
 import json
 from registerTeam import RegisterTeam
+from auth import Autharization
 
 """
-issue object json
+
+header or /create-issue
+"x-access-token": token
+
+body for /create-issue
 {
-    "team-name": "....",
     "title": "....",
     "description": "....",
     "priority": "....",
-    "author": "....",
     "assignee": "....",
     "tags": [..., ..., ...],
 }
@@ -31,25 +34,43 @@ class CreateIssue(Resource):
         self.registerTeam = RegisterTeam()
 
     def post(self):
-        reqData = json.loads(request.data) if request.data else None
+        userDetails = Autharization.validate_token(request)
+        if not userDetails:
+            self.result["message"] = "Invalid or missing token"
+            return self.result, 400
+
+        data = json.loads(request.data) if request.data else None
         
-        # fetch index for issue
-        index = self.registerTeam.getIssueIndex(reqData["team-name"])
-        print("issue index: ", index)
+        print("88888",userDetails)
+        teamName = userDetails["team"]
+        authorEmail = userDetails["email"]
+        authorName = self.user_collection.find_one({"team": teamName, "email": authorEmail})["name"]
+        issueIndex = self.registerTeam.getIssueIndex(teamName)
+
+        issueData = {
+            "team": teamName,
+            "author": authorName,
+            "author-email": authorEmail,
+            "index": issueIndex,
+            "tags": data["tags"],
+            "title": data["title"],
+            "assignee": data["assignee"],
+            "priority": data["priority"],
+            "description": data["description"]
+        }
+        print("creating this issue", issueData)
 
         # add issue to issues collection
-        reqData["index"] = index
-        self.issue_collection.save(reqData)
+        self.issue_collection.save(issueData)
 
         # update the issues count in team collection
-        if self.registerTeam.updateIssueCount(reqData["team-name"]):
+        if self.registerTeam.updateIssueCount(teamName):
             print("issue count updated in team collection")
         else:
             print("Falied to update issue count in team collection")
 
-        # print(reqData)
         self.result["data"] = "Issue raised successfully"
-        self.result["index"] = index
+        self.result["index"] = issueIndex
         return self.result, 200
     
     def getIssue(self, index, teamName):
