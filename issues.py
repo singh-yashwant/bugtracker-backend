@@ -41,7 +41,6 @@ class CreateIssue(Resource):
 
         data = json.loads(request.data) if request.data else None
         
-        print("88888",userDetails)
         teamName = userDetails["team"]
         authorEmail = userDetails["email"]
         authorName = self.user_collection.find_one({"team": teamName, "email": authorEmail})["name"]
@@ -74,15 +73,37 @@ class CreateIssue(Resource):
         return self.result, 200
     
     def getIssue(self, index, teamName):
-        return self.issue_collection.find_one({"index":  index, "team-name": teamName})
+        return self.issue_collection.find_one({"index":  index, "team": teamName})
 
+
+"""
+header for /update-issue
+"x-access-token": token
+
+body for /update-issue
+{
+    "index": issueindex,
+    .
+    .
+    rest all the fields you want to update
+    .
+    .
+}
+"""
 
 class UpdateIssue(CreateIssue):
     def post(self):
-        reqData = json.loads(request.data) if request.data else None
-        index = reqData["index"]
-        teamName = reqData["team-name"]
+        userDetails = Autharization.validate_token(request)
+        if not userDetails:
+            self.result["message"] = "Invalid or missing token"
+            return self.result, 400
 
+        reqData = json.loads(request.data) if request.data else None
+        
+        teamName = userDetails["team"]
+        
+        index = reqData["index"]
+        
         issueDetails = self.getIssue(index, teamName)
         for key in reqData.keys():
             issueDetails[key] = reqData[key]
@@ -92,11 +113,23 @@ class UpdateIssue(CreateIssue):
         print(issueDetails)
         return self.result, 200
 
+"""
+header of /issues 
+"x-access-token": token
+
+body of /issues
+blank
+"""
+
 class IssueList(CreateIssue):
     def get(self):
-        reqData = json.loads(request.data) if request.data else None
+        userDetails = Autharization.validate_token(request)
+        if not userDetails:
+            self.result["message"] = "Invalid or missing token"
+            return self.result, 400
+        
+        teamName = userDetails["team"]
 
-        teamName = reqData["team-name"]
         issues = self.issue_collection.find({"team-name": teamName})
 
         self.result["data"]["issues"] = []
