@@ -5,6 +5,7 @@ from flask_restful import Resource
 from flask import request
 import json
 from registerTeam import RegisterTeam
+from auth import Autharization
 
 class UserList(Resource):
     def __init__(self):
@@ -16,10 +17,13 @@ class UserList(Resource):
         self.result = {"Status": True, "data": {}}
 
     def get(self):
-        reqData = json.loads(request.data) if request.data else None
+        userDetails = Autharization.validate_token(request)
+        if not userDetails:
+            self.result["message"] = "Invalid or missing token"
+            return self.result, 400
         
-        teamName = reqData["team-name"]
-
+        teamName = userDetails["team"]
+        
         users = self.user_collection.find({"team": teamName})
 
         self.result["data"]["users"] = []
