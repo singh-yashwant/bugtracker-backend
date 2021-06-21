@@ -5,3 +5,5 @@ This is not a public API it's only purpose is to serve as a backend to the to th
 
 ## API Documentation
 https://documenter.getpostman.com/view/16075757/TzeZESKz
+
+(Documentation for all remaining endpoints will be added)
