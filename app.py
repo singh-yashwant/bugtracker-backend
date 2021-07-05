@@ -11,6 +11,7 @@ from user import UserList
 from auth import Autharization
 from auth import LogIn
 from test import TestClass
+from auth import IsTokenValid
 
 app = Flask(__name__)
 api = Api(app)
@@ -26,6 +27,7 @@ api.add_resource(IssueList, '/issues')
 api.add_resource(UserList, '/users')
 api.add_resource(LogIn, '/login')
 api.add_resource(TestClass, '/test')
+api.add_resource(IsTokenValid, '/check-token')
 
 if __name__ == '__main__':
     app.run()

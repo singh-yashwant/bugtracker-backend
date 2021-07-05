@@ -46,7 +46,19 @@ class Autharization:
             print("unable to decode token", e)
             return False
         
+    @staticmethod
+    def is_token_valid(request):
+        if 'x-access-token' in request.headers:
+            token = request.headers["x-access-token"]
+        else:
+            return False
         
+        try:
+            userData = jwt.decode(token, current_app.config["SECRET_KEY"],algorithms="HS256")
+            return True
+        except:
+            print("token is expired or invalid")
+            return False        
 
 class LogIn(Resource):
     def __init__(self):
@@ -93,3 +105,18 @@ class LogIn(Resource):
         self.result["message"] = "login successfull"
         self.result["token"] = token
         return self.result, 200
+
+
+class IsTokenValid(Resource):
+    def __init__(self):
+        self.result = {"Status": True, "data": {}}
+
+    def get(self):
+        reqData = json.loads(request.data) if request.data else {}
+        print(Autharization.is_token_valid(request))
+        if Autharization.is_token_valid(request):
+            self.result["data"] = "token is valid"
+            return self.result, 200
+        else:
+            self.result["data"] = "token is invalid or expired"
+            return self.result, 400
