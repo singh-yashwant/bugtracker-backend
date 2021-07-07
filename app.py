@@ -12,6 +12,7 @@ from models.auth import Autharization
 from models.auth import LogIn
 from models.test import TestClass
 from models.auth import IsTokenValid
+from models.dashboard import Dashboard
 
 app = Flask(__name__)
 api = Api(app)
@@ -28,6 +29,7 @@ api.add_resource(UserList, '/users')
 api.add_resource(LogIn, '/login')
 api.add_resource(TestClass, '/test')
 api.add_resource(IsTokenValid, '/check-token')
+api.add_resource(Dashboard, '/dashboard')
 
 if __name__ == '__main__':
     app.run()
