@@ -4,8 +4,8 @@ from bson.objectid import ObjectId
 from flask_restful import Resource
 from flask import request
 import json
-from registerTeam import RegisterTeam
-from auth import Autharization
+from .registerTeam import RegisterTeam
+from .auth import Autharization
 
 """
 
