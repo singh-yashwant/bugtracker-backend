@@ -145,3 +145,24 @@ class IssueList(CreateIssue):
             if key in required_keys:
                 data[key] = issue[key]
         return data
+    
+class ReassignIssues():
+    def __init__(self):
+        self.client = MongoClient(MONGO_CONNECTION_URL)
+        self.db = self.client.bugtracker_db
+        self.user_collection = self.db.users
+        self.team_collection = self.db.teams
+        self.issue_collection = self.db.issues
+
+    def update_issues(self, teamName):
+        # update member profile if a issue is finished
+        self.issues_list = [issue for issue in  self.issue_collection.find({"team-name": teamName})]
+        self.members_list = [member for member in self.user_collection.find({"team": teamName})]
+
+        print("ISSUES LIST")
+        print(self.issues_list)
+
+        print("MEMBERS LIST")
+        print(self.members_list)
+
+        # update suitable member profile if a new issue is added
