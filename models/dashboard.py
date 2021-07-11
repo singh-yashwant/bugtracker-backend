@@ -58,6 +58,7 @@ class Dashboard(Resource):
             return self.result, 400
 
         teamName = self.userDetails["team"]
+        print("fetching dashboard data for team", teamName)
 
         self.result["data"]["team-name"] = self.userDetails["team"]
         self.result["data"]["project-name"] = ""
@@ -65,7 +66,7 @@ class Dashboard(Resource):
         self.result["data"]["team-members"] = []
     
         #build the issue list
-        issues = self.issue_collection.find({"team-name": teamName})
+        issues = self.issue_collection.find({"team": teamName})
         for issue in issues:
             self.result["data"]["issue-list"].append(self.prepreIssueToReturn(issue))
 

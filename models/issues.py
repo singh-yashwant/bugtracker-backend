@@ -129,8 +129,9 @@ class IssueList(CreateIssue):
             return self.result, 400
         
         teamName = userDetails["team"]
+        print("fetching issues for team ", teamName)
 
-        issues = self.issue_collection.find({"team-name": teamName})
+        issues = self.issue_collection.find({"team": teamName})
 
         self.result["data"]["issues"] = []
         for issue in issues:
