@@ -39,12 +39,18 @@ class CreateIssue(Resource):
             self.result["message"] = "Invalid or missing token"
             return self.result, 400
 
+
         data = json.loads(request.data) if request.data else None
-        
+        print("CREATE ISSUE DATA REQUEST WITH")
+        print(data)
+
         teamName = userDetails["team"]
         authorEmail = userDetails["email"]
         authorName = self.user_collection.find_one({"team": teamName, "email": authorEmail})["name"]
         issueIndex = self.registerTeam.getIssueIndex(teamName)
+
+        print("fetching issue list for team", teamName)
+        print("creating issue with index", issueIndex)
 
         issueData = {
             "team": teamName,
