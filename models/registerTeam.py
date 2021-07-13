@@ -22,18 +22,31 @@ class RegisterTeam(Resource):
 
     def post(self):
         reqData = json.loads(request.data) if request.data else None
-
-        # print(reqData)
-        # return {"Status": False, "data": "Failed to register"}, 400 
+        
+        # if the keys are missing
+        if "team-name" not in reqData.keys():
+            self.result["data"] = "insufficient details, team-name missing"
+            return self.result, 400
+        if "project-name" not in reqData.keys():
+            self.result["data"] = "insufficient details, project-name missing"
+            return self.result, 400
+        if "team-members" not in reqData.keys():
+            self.result["data"] = "insufficient details, team-members detials missing"
+            return self.result, 400
+        if "password" not in reqData.keys():
+            self.result["data"] = "insufficient details, password missing"
+            return self.result, 400
                
-        # if team with same name already present
         teamName = reqData["team-name"]
         self.password = reqData["password"]
-        # print(teamName)
+
+        # if team with same name already present
         if self.sameNameTeamExist(teamName):
             self.result["data"] = "Cannot register team with same name already exist"
             return self.result, 400
-        
+
+        print("creating team", teamName)
+        print("team details", reqData)
         self.createTeam(reqData)
         
         # add users to database
@@ -58,7 +71,8 @@ class RegisterTeam(Resource):
             user = {
                 "name": member[0], 
                 "email": member[1], 
-                "team": teamName
+                "team": teamName,
+                "issue-working": 0,
             }
             self.user_collection.save(user)
             self.sendEmail(teamName, member)
