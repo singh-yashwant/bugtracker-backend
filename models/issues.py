@@ -41,6 +41,23 @@ class CreateIssue(Resource):
 
 
         data = json.loads(request.data) if request.data else None
+        # if the keys are missing
+        if "title" not in data.keys():
+            self.result["data"] = "insufficient details, title missing"
+            return self.result, 400
+        if "description" not in data.keys():
+            self.result["data"] = "insufficient details, descritption missing"
+            return self.result, 400
+        if "priority" not in data.keys():
+            self.result["data"] = "insufficient details, priority detials missing"
+            return self.result, 400
+        if "assignee" not in data.keys():
+            self.result["data"] = "insufficient details, assignee missing"
+            return self.result, 400
+        if "tags" not in data.keys():
+            self.result["data"] = "insufficient details, tags missing"
+            return self.result, 400
+
         print("CREATE ISSUE DATA REQUEST WITH")
         print(data)
 
@@ -57,6 +74,7 @@ class CreateIssue(Resource):
             "author": authorName,
             "author-email": authorEmail,
             "index": issueIndex,
+            "status": "pending",
             "tags": data["tags"],
             "title": data["title"],
             "assignee": data["assignee"],
@@ -76,11 +94,71 @@ class CreateIssue(Resource):
 
         self.result["data"] = "Issue raised successfully"
         self.result["index"] = issueIndex
+        
+        # assigning this issue by running reassign issue function
+        self.reassign_issues(teamName)
+
         return self.result, 200
     
     def getIssue(self, index, teamName):
         return self.issue_collection.find_one({"index":  index, "team": teamName})
 
+    def reassign_issues(self, teamName):
+        print("REASSIGNING ISSUES FOR TEAM", teamName)
+        user_issue_limit = 100
+        #1 fetch all the issues of the team
+        #2 if an issue status is 'finished' free the assignee of that issue
+        # and remove that issue from current list for further processing
+        unfinished_issues = []
+        for issue in self.issue_collection.find({"team": teamName}):
+            if "status" not in issue.keys():
+                issue["status"] = "pending"
+                self.issue_collection.save(issue)
+            if issue["status"] == "pending" and issue["assignee"] == "":
+                unfinished_issues.append(issue)
+        print("unfinished issues: ", unfinished_issues)
+
+        #3 gather the list of team members who are working on less than the capped
+        # count for each and sort the list using no of issues working on as key
+        #4 remove the issues which are 'pending' and have a assignee assigned
+        free_team_members = []
+        for member in self.user_collection.find({"team": teamName}):
+            if "issue-working" not in member.keys():
+                member["issue-working"] = 0
+                self.user_collection.save(member)
+            if member["issue-working"] < user_issue_limit:
+                free_team_members.append(member)
+        free_team_members = sorted(free_team_members, key=lambda k: k["issue-working"])
+        print("available team members", free_team_members)
+
+        #5 while both issue list and member list both are non empty
+        # assign the first issue to first team member and repeat from step 4
+        while len(unfinished_issues) > 0 and len(free_team_members) > 0:
+            print("\n\n**********start***************")
+            print(unfinished_issues)
+            print(free_team_members)
+            print("**************end***********\n\n")
+            cur_issue = unfinished_issues[0]
+            cur_member = free_team_members[0]
+            cur_issue["assignee"] = free_team_members[0]["name"]
+            cur_member["issue-working"] += 1
+            print("\n\nUPDATING ISSUE COUNT OF ", cur_member["name"], "\n")
+            self.issue_collection.save(cur_issue)
+            self.user_collection.save(cur_member)
+
+            unfinished_issues = []
+            free_team_members = []
+            for member in self.user_collection.find({"team": teamName}):
+                if member["issue-working"] < user_issue_limit:
+                    free_team_members.append(member)
+            
+            for issue in self.issue_collection.find({"team": teamName}):
+                if issue["assignee"] == "":
+                    unfinished_issues.append(issue)
+            free_team_members = sorted(free_team_members, key=lambda k: k["issue-working"])
+
+        print("ISSUE REASSIGN COMPLETED")
+       
 
 """
 header for /update-issue
@@ -117,7 +195,16 @@ class UpdateIssue(CreateIssue):
         
         self.result["data"] = "Details update sucessfully"
         print(issueDetails)
-        return self.result, 200
+
+        # reassigning all issues if current issue is finished
+        if issueDetails["status"] == "finished":
+            assignee = self.user_collection.find_one({"team": teamName, "name": issueDetails["assignee"]})
+            assignee["issue-working"] -= 1
+            print("decreasing issue-working count of ", assignee["name"])
+            self.user_collection.save(assignee)
+            self.reassign_issues(teamName)
+
+        return self.result, 200 
 
 """
 header of /issues 

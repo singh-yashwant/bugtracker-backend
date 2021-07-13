@@ -72,7 +72,7 @@ class RegisterTeam(Resource):
                 "name": member[0], 
                 "email": member[1], 
                 "team": teamName,
-                "issue-working": 0,
+                "issue-working": 0
             }
             self.user_collection.save(user)
             self.sendEmail(teamName, member)
