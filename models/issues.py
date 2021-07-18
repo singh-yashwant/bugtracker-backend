@@ -1,3 +1,4 @@
+from flask.helpers import send_file
 from pymongo import MongoClient
 from config import MONGO_CONNECTION_URL
 from bson.objectid import ObjectId
@@ -234,8 +235,39 @@ class IssueList(CreateIssue):
 
     def prepreIssueToReturn(self, issue):
         data = dict()
-        required_keys = ["title", "team-name", "author", "description", "assignee", "priority", "tags", "index"]
+        required_keys = ["title", "status", "team-name", "author", "description", "assignee", "priority", "tags", "index"]
         for key in issue.keys():
             if key in required_keys:
                 data[key] = issue[key]
         return data
+
+"""
+this get request takes 1 parameter '?index=x'
+and header contains 'x-access-token' for validation
+"""
+class GetIssue(IssueList):
+    def get(self):
+        userDetails = Autharization.validate_token(request)
+        if not userDetails:
+            self.result["message"] = "Invalid or missing token"
+            return self.result, 400
+        
+        issueIndex = request.args.get('index')
+        if not issueIndex:
+            self.result["message"] = "Issue index missing"
+            return self.result, 400
+        else:
+            issueIndex = int(issueIndex)
+        teamName = userDetails["team"]
+        print("fetching issue {} for team".format(issueIndex), teamName)
+
+        issueDetails = self.issue_collection.find_one({"team": teamName, "index": issueIndex})
+        print(issueDetails)
+        
+        if not issueDetails:
+            self.result["message"] = "No issue with this index exist"
+            return self.result, 400
+
+        self.result["data"] = self.prepreIssueToReturn(issueDetails)
+
+        return self.result, 200
