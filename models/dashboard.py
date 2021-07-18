@@ -89,7 +89,7 @@ class Dashboard(Resource):
 
     def prepreUserToReturn(self, user):
         data = dict()
-        required_keys = ["name", "email", "issue-count"]
+        required_keys = ["name", "email", "issue-working"]
         for key in user.keys():
             if key in required_keys:
                 data[key] = user[key]
