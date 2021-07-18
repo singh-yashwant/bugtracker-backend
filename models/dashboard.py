@@ -62,6 +62,7 @@ class Dashboard(Resource):
 
         self.result["data"]["team-name"] = self.userDetails["team"]
         self.result["data"]["project-name"] = ""
+        self.result["data"]["status"] = ""
         self.result["data"]["issue-list"] = []
         self.result["data"]["team-members"] = []
     
@@ -80,7 +81,7 @@ class Dashboard(Resource):
 
     def prepreIssueToReturn(self, issue):
         data = dict()
-        required_keys = ["index", "title", "tags", "author", "author-email", "assignee", "priority", "description"]
+        required_keys = ["index", "title", "status", "tags", "author", "author-email", "assignee", "priority", "description"]
         for key in issue.keys():
             if key in required_keys:
                 data[key] = issue[key]
