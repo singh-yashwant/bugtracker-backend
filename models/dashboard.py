@@ -34,7 +34,7 @@ body for /dashboard
             {
                 "email": "user@email",
                 "name": "user name",
-                 "issue-count": int,
+                "issue-working": int,
             }
         ],
     }
@@ -61,8 +61,7 @@ class Dashboard(Resource):
         print("fetching dashboard data for team", teamName)
 
         self.result["data"]["team-name"] = self.userDetails["team"]
-        self.result["data"]["project-name"] = ""
-        self.result["data"]["status"] = ""
+        self.result["data"]["project-name"] = self.team_collection.find_one({"team-name": teamName})['project-name']
         self.result["data"]["issue-list"] = []
         self.result["data"]["team-members"] = []
     
