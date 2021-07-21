@@ -235,7 +235,7 @@ class IssueList(CreateIssue):
 
     def prepreIssueToReturn(self, issue):
         data = dict()
-        required_keys = ["title", "status", "team-name", "author", "description", "assignee", "priority", "tags", "index"]
+        required_keys = ["title", "status", "team-name", "author", "author-email", "description", "assignee", "priority", "tags", "index"]
         for key in issue.keys():
             if key in required_keys:
                 data[key] = issue[key]
