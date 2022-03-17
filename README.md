@@ -8,5 +8,5 @@ https://documenter.getpostman.com/view/16075757/TzeZESKz
 
 
 ## Frontend and deployment
-https://github.com/soniyash5000/bugtracker-frontend (Frontend written in flask) <br />
+https://github.com/soniyash5000/bugtracker-frontend  <br />
 https://trackthebug.herokuapp.com/ (Web app deployed on heroku)
